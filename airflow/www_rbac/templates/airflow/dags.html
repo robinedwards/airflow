@@ -300,11 +300,11 @@
       stroke_width_hover = 6;
       d3.json("{{ url_for('Airflow.blocked') }}", function(error, json) {
         $.each(json, function() {
-          $('.label.schedule.' + this.dag_id)
+          $('.label.schedule.' + this.dag_id.replace('.', '\\.'))
           .attr('title', this.active_dag_run + '/' + this.max_active_runs + ' active dag runs')
           .tooltip();
           if(this.active_dag_run >= this.max_active_runs) {
-            $('.label.schedule.' + this.dag_id)
+            $('.label.schedule.' + this.dag_id.replace('.', '\\.'))
             .css('background-color', 'red');
           }
         });
@@ -312,7 +312,7 @@
       d3.json("{{ url_for('Airflow.dag_stats') }}", function(error, json) {
         for(var dag_id in json) {
             states = json[dag_id];
-            g = d3.select('svg#dag-run-' + dag_id)
+            g = d3.select('svg#dag-run-' + dag_id.replace('.', '\\.'))
               .attr('height', diameter + (stroke_width_hover * 2))
               .attr('width', '110px')
               .selectAll("g")
@@ -391,7 +391,7 @@
       d3.json("{{ url_for('Airflow.task_stats') }}", function(error, json) {
         for(var dag_id in json) {
             states = json[dag_id];
-            g = d3.select('svg#task-run-' + dag_id)
+            g = d3.select('svg#task-run-' + dag_id.replace('.', '\\.'))
               .attr('height', diameter + (stroke_width_hover * 2))
               .attr('width', '300px')
               .selectAll("g")
