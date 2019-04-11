@@ -320,7 +320,7 @@ def do_setup():
             'setproctitle>=1.1.8, <2',
             'sqlalchemy>=1.1.15, <1.3.0',
             'tabulate>=0.7.5, <0.9',
-            'tenacity==4.12.0',
+            'tenacity==5.0.4',
             'text-unidecode==1.2',
             'typing;python_version<"3.5"',
             'thrift>=0.9.2',
