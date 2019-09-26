@@ -1217,6 +1217,7 @@ class DAG(BaseDag, LoggingMixin):
             ignore_task_deps=False,
             ignore_first_depends_on_past=False,
             pool=None,
+            queue=None,
             delay_on_limit_secs=1.0,
             verbose=False,
             conf=None,
@@ -1244,6 +1245,8 @@ class DAG(BaseDag, LoggingMixin):
             dependencies for the first set of tasks only
         :type ignore_first_depends_on_past: bool
         :param pool: Resource pool to use
+        :type pool: str
+        :param pool: Queue to use
         :type pool: str
         :param delay_on_limit_secs: Time in seconds to wait before next attempt to run
             dag run when max_active_runs limit has been reached
@@ -1273,6 +1276,7 @@ class DAG(BaseDag, LoggingMixin):
             ignore_task_deps=ignore_task_deps,
             ignore_first_depends_on_past=ignore_first_depends_on_past,
             pool=pool,
+            queue=queue,
             delay_on_limit_secs=delay_on_limit_secs,
             verbose=verbose,
             conf=conf,
