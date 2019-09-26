@@ -125,6 +125,7 @@ class BackfillJob(BaseJob):
             ignore_first_depends_on_past=False,
             ignore_task_deps=False,
             pool=None,
+            queue=None,
             delay_on_limit_secs=1.0,
             verbose=False,
             conf=None,
@@ -148,6 +149,8 @@ class BackfillJob(BaseJob):
         :type ignore_task_deps: bool
         :param pool: pool to backfill
         :type pool: str
+        :param pool: Queue to use
+        :type pool: str
         :param delay_on_limit_secs:
         :param verbose:
         :type verbose: flag to whether display verbose message to backfill console
@@ -170,6 +173,7 @@ class BackfillJob(BaseJob):
         self.ignore_first_depends_on_past = ignore_first_depends_on_past
         self.ignore_task_deps = ignore_task_deps
         self.pool = pool
+        self.queue = queue
         self.delay_on_limit_secs = delay_on_limit_secs
         self.verbose = verbose
         self.conf = conf
@@ -487,6 +491,12 @@ class BackfillJob(BaseJob):
                         self.log.debug('Sending %s to executor', ti)
                         # Skip scheduled state, we are executing immediately
                         ti.state = State.QUEUED
+
+                        # if override for queue provided
+                        if self.queue:
+                            ti.task.queue = self.queue
+                            ti.queue = self.queue
+
                         ti.queued_dttm = timezone.utcnow() if not ti.queued_dttm else ti.queued_dttm
                         session.merge(ti)
 

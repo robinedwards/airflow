@@ -205,6 +205,7 @@ def backfill(args, dag=None):
             end_date=args.end_date,
             mark_success=args.mark_success,
             local=args.local,
+            queue=args.queue,
             donot_pickle=(args.donot_pickle or
                           conf.getboolean('core', 'donot_pickle')),
             ignore_first_depends_on_past=args.ignore_first_depends_on_past,
@@ -1760,6 +1761,7 @@ class CLIFactory:
                 "DO respect depends_on_past)."),
             "store_true"),
         'pool': Arg(("--pool",), "Resource pool to use"),
+        'queue': Arg(("--queue",), "Override queue to use"),
         'delay_on_limit': Arg(
             ("--delay_on_limit",),
             help=("Amount of time in seconds to wait when the limit "
@@ -2249,7 +2251,7 @@ class CLIFactory:
                             " within the backfill date range.",
                     'args': (
                         'dag_id', 'task_regex', 'start_date', 'end_date',
-                        'mark_success', 'local', 'donot_pickle',
+                        'mark_success', 'local', 'donot_pickle', 'queue',
                         'bf_ignore_dependencies', 'bf_ignore_first_depends_on_past',
                         'subdir', 'pool', 'delay_on_limit', 'dry_run', 'verbose', 'conf',
                         'reset_dag_run', 'rerun_failed_tasks', 'run_backwards'
