@@ -18,12 +18,10 @@
 # under the License.
 
 # pylint: disable=missing-docstring
+import importlib
 
 from airflow.configuration import conf
-from airflow.exceptions import AirflowException
 from airflow.task.task_runner.standard_task_runner import StandardTaskRunner
-
-_TASK_RUNNER = conf.get('core', 'TASK_RUNNER')
 
 
 def get_task_runner(local_task_job):
@@ -36,10 +34,15 @@ def get_task_runner(local_task_job):
     :return: The task runner to use to run the task.
     :rtype: airflow.task.task_runner.base_task_runner.BaseTaskRunner
     """
-    if _TASK_RUNNER == "StandardTaskRunner":
+    _task_runner = conf.get('core', 'TASK_RUNNER')
+
+    if _task_runner == "StandardTaskRunner":
         return StandardTaskRunner(local_task_job)
-    elif _TASK_RUNNER == "CgroupTaskRunner":
+    elif _task_runner == "CgroupTaskRunner":
         from airflow.task.task_runner.cgroup_task_runner import CgroupTaskRunner
         return CgroupTaskRunner(local_task_job)
     else:
-        raise AirflowException("Unknown task runner type {}".format(_TASK_RUNNER))
+        path, cls_name = _task_runner.rsplit('.', 1)
+        module = importlib.import_module(path)
+        runner_cls = getattr(module, cls_name)
+        return runner_cls(local_task_job)
