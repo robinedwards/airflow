@@ -18,6 +18,7 @@
 
 import datetime
 import importlib
+from unittest import mock
 
 import pytest
 from freezegun import freeze_time
@@ -58,6 +59,10 @@ CRUMB = {
 }
 
 
+def before_send(_):
+    pass
+
+
 class TestSentryHook:
     @pytest.fixture
     def task_instance(self, dag_maker):
@@ -77,7 +82,10 @@ class TestSentryHook:
 
     @pytest.fixture
     def sentry(self):
-        with conf_vars({('sentry', 'sentry_on'): 'True'}):
+        with conf_vars({
+            ('sentry', 'sentry_on'): 'True',
+            ('sentry', 'before_send'): 'tests.core.test_sentry.before_send'
+        },):
             from airflow import sentry
 
             importlib.reload(sentry)
@@ -105,3 +113,11 @@ class TestSentryHook:
         with configure_scope() as scope:
             test_crumb = scope._breadcrumbs.pop()
             assert CRUMB == test_crumb
+
+    @mock.patch('airflow.sentry.sentry_sdk.init')
+    def test_before_send(self, sentry, init):
+        """
+        Test before send callable gets passed to the sentry SDK.
+        """
+        assert sentry
+        assert init.call_args.kwargs['before_send'] == before_send
