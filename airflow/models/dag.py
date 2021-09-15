@@ -2238,19 +2238,13 @@ class DagModel(Base):
         """
         log.debug("Deactivating DAGs (for which DAG files are deleted) from %s table ", cls.__tablename__)
 
-        dag_models = session.query(cls).all()
+        dag_models = session.query(cls).filter(cls.is_active.is_(True)).all()
         try:
             for dag_model in dag_models:
-                if dag_model.fileloc is not None:
-                    if correct_maybe_zipped(dag_model.fileloc) not in alive_dag_filelocs:
-                        dag_model.is_active = False
-                    else:
-                        # If is_active is set as False and the DAG File still exists
-                        # Change is_active=True
-                        if not dag_model.is_active:
-                            dag_model.is_active = True
-                else:
+                if dag_model.fileloc is None:
                     continue
+                if correct_maybe_zipped(dag_model.fileloc) not in alive_dag_filelocs:
+                    dag_model.is_active = False
             session.commit()
         except Exception:
             session.rollback()
