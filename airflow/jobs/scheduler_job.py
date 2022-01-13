@@ -696,7 +696,7 @@ class SchedulerJob(BaseJob):
         )
 
         for loop_count in itertools.count(start=1):
-            with Stats.timer() as timer:
+            with Stats.timer('scheduler.loop') as timer:
 
                 if self.using_sqlite:
                     self.processor_agent.run_single_parsing_loop()
@@ -914,6 +914,8 @@ class SchedulerJob(BaseJob):
                     creating_job_id=self.id,
                 )
                 active_runs_of_dags[dag.dag_id] += 1
+                Stats.incr('scheduler.dag_runs.created', 1)
+
             if self._should_update_dag_next_dagruns(dag, dag_model, active_runs_of_dags[dag.dag_id]):
                 dag_model.calculate_dagrun_date_fields(dag, data_interval)
         # TODO[HA]: Should we do a session.flush() so we don't have to keep lots of state/object in
@@ -974,6 +976,7 @@ class SchedulerJob(BaseJob):
                 )
             else:
                 active_runs_of_dags[dag_run.dag_id] += 1
+                Stats.incr('scheduler.dag_runs.running', 1)
                 _update_state(dag, dag_run)
 
     def _schedule_dag_run(
@@ -1047,7 +1050,7 @@ class SchedulerJob(BaseJob):
         # IDs in a single query, but it turns out that can be _very very slow_
         # see #11147/commit ee90807ac for more details
         dag_run.schedule_tis(schedulable_tis, session)
-
+        Stats.incr('scheduler.dag_runs.scheduled', 1)
         return callback_to_run
 
     @provide_session
